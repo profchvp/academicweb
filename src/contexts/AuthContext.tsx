@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useState, useEffect } from "react";
 
 import { api } from "../services/apiClient";
 
@@ -6,8 +6,7 @@ import { destroyCookie, setCookie, parseCookies } from 'nookies'
 
 import Router from 'next/router'
 
-
-import {toast} from 'react-toastify'
+import { toast } from 'react-toastify'
 
 type AuthContextData = {
     user: UserProps;
@@ -46,9 +45,31 @@ export function signOut() {
 }
 export function AuthProvider({ children }: AuthproviderProps) {
 
-    const [user, setuser] = useState<UserProps>()
+    const [user, setUser] = useState<UserProps>()
     const isAuthenticated = !!user /* !! Converte para booleano */
+    //Será executado todas as vezes que este componente é carregado
+    useEffect(() => {
+        //tentar obter algo no cookie
+        const { '@nextauth.token': token } = parseCookies();
+        if (token) {
+            //fazer a chama da API
+            api.get('/me').then(response => {
+                const { id, nome, email } = response.data;
+                setUser({
+                    id,
+                    nome,
+                    email
+                })
+            })
+                .catch(() => {
+                    //se deu erro, devemos "deslogar" o usuário
+                    signOut();
+                })
 
+        }
+    }, [])
+
+    //
     async function signIn({ email, password }: SignInProps) {
         //alert("email recebido" + email + " Senha: " + password)
         try {
@@ -63,7 +84,7 @@ export function AuthProvider({ children }: AuthproviderProps) {
                 maxAge: 60 * 60 * 24 * 30, //expira em 1 mês
                 path: "/" //"/" deixa todos os caminhas ter acesso ao token
             })
-            setuser({
+            setUser({
                 id,
                 nome,
                 email,
