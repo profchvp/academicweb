@@ -18,7 +18,8 @@ type AuthContextData = {
 type UserProps = {
     id: string;
     nome: string;
-    email: string
+    email: string;
+    role: string;
 }
 type SignInProps = {
     email: string;
@@ -31,6 +32,7 @@ type SignUpProps = {
     nome: string;
     email: string;
     password: string;
+    role:string
 
 }
 export const AuthContext = createContext({} as AuthContextData)
@@ -54,11 +56,12 @@ export function AuthProvider({ children }: AuthproviderProps) {
         if (token) {
             //fazer a chama da API
             api.get('/me').then(response => {
-                const { id, nome, email } = response.data;
+                const { id, nome, email, role } = response.data;
                 setUser({
                     id,
                     nome,
-                    email
+                    email,
+                    role
                 })
             })
                 .catch(() => {
@@ -79,7 +82,7 @@ export function AuthProvider({ children }: AuthproviderProps) {
             })
             //console.log(response.data)
             /**Salvando Cookies e token */
-            const { id, nome, token } = response.data //desconstruimos "data"
+            const { id, nome, role, token } = response.data //desconstruimos "data"
             setCookie(undefined, '@nextauth.token', token, {
                 maxAge: 60 * 60 * 24 * 30, //expira em 1 mês
                 path: "/" //"/" deixa todos os caminhas ter acesso ao token
@@ -88,6 +91,7 @@ export function AuthProvider({ children }: AuthproviderProps) {
                 id,
                 nome,
                 email,
+                role,
             })
             //Enviar (próximas requisições)para todas as rotas, o token de autenticação
             api.defaults.headers['Authorization'] = `Bearer ${token}`
@@ -102,13 +106,14 @@ export function AuthProvider({ children }: AuthproviderProps) {
         }
 
     }
-    async function signUp({ nome, email, password }: SignUpProps) {
+    async function signUp({ nome, email, password,role }: SignUpProps) {
         //console.log("Nome recebido: " + nome)
         try {
             const response = await api.post('/usuario', {
                 nome,
                 email,
-                password
+                password,
+                role,
             })
             //console.log("Cadastrado com Sucesso")
             toast.success('Cadastrado com Sucesso')

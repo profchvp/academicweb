@@ -8,18 +8,20 @@ import styles from '../../../styles/home.module.scss'
 
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { Label} from '../../components/ui/Label'
 
 import Link from 'next/link';
 
 import { AuthContext } from '../../contexts/AuthContext'
 import { sign } from 'crypto'
-import {toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 export default function Signup() {
     const { signUp } = useContext(AuthContext);
 
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('ALUNO');
     const [loading, setLoading] = useState(false);
 
     async function handleSignUp(event: FormEvent) {
@@ -30,12 +32,14 @@ export default function Signup() {
             toast.error("Preencha todos os campos")
             return
         }
+                
         setLoading(true);
 
         let data = {
             nome,
             email,
-            password
+            password,
+            role,
         }
         await signUp(data)
 
@@ -68,6 +72,31 @@ export default function Signup() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
+                       
+                    
+                       <h2>Selecione seu Perfil:</h2>
+                            <div className={styles.radioSection}>
+                            
+                            <Input 
+                            type="radio" 
+                            id="aluno" 
+                            name="papel"
+                             value="aluno" 
+                             checked
+                             onClick={() => setRole('ALUNO')}
+                             />
+                            <Label htmlFor='ALUNO'>Aluno</Label>
+                             <Input 
+                             type="radio" 
+                             id="prof" 
+                             name="papel" 
+                             value="professor" 
+                             onClick={() => setRole('PROFESSOR')}
+                             />
+                             <Label htmlFor="PROFESSOR">Professor</Label>
+                             
+                             </div>
+                                                 
                         <Button
                             type="submit"
                             loading={loading}

@@ -16,7 +16,7 @@ export function Header() {
                 <Link href="/home">
                     <img src="/exclamation-icons.svg" width={190} height={60} />
                 </Link>
-                <h1>{user?.nome} - {user?.email}</h1>
+                <h1>{user?.nome} - {user?.email}-{user?.role}</h1>
                 <nav className={styles.menuNav}>
                     <Link href="/categoria">
                         Categoria
